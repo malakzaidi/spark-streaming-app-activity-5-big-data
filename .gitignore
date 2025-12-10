@@ -1,0 +1,57 @@
+# Create .gitignore with comprehensive patterns
+@"
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Build artifacts
+target/
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+
+# Maven
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+
+# Eclipse
+.classpath
+.project
+.settings/
+bin/
+
+# Spark
+spark-warehouse/
+derby.log
+metastore_db/
+
+# Docker
+docker-compose.*.yml
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Data files (comment out if you need to track CSV files)
+# *.csv
+# *.parquet
+# data/
+
+# Test files
+test-output/
+"@ | Out-File .\.gitignore -Encoding UTF8
+
+Write-Host "Created .gitignore" -ForegroundColor Green
