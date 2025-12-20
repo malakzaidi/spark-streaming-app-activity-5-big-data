@@ -45,10 +45,10 @@ Thumbs.db
 *.log
 logs/
 
-# Data files (comment out if you need to track CSV files)
-# *.csv
-# *.parquet
-# data/
+# Data files
+ *.csv
+.parquet
+data
 
 # Test files
 test-output/
