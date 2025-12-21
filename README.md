@@ -1,4 +1,7 @@
-# Projet Spark Streaming avec Hadoop HDFS
+# Activité pratique 5 Spark Streaming avec Hadoop HDFS
+
+<img width="1536" height="1024" alt="ChatGPT Image Dec 21, 2025, 12_52_13 AM" src="https://github.com/user-attachments/assets/05e77720-1c98-4912-871b-3d0fc5e1b354" />
+
 
 ## Table des matières
 
@@ -158,86 +161,29 @@ Le fichier définit 7 services :
 
 ### Étape 1 : Démarrer l'infrastructure
 
-```powershell
-# Nettoyer les anciens conteneurs (optionnel)
-docker-compose down -v
+<img width="1770" height="770" alt="Screenshot 2025-12-20 193232" src="https://github.com/user-attachments/assets/98fbeaca-d9f1-4229-897f-c18359030776" />
 
-# Démarrer tous les services
-docker-compose up -d
-
-# Attendre que les services démarrent (30-40 secondes)
-Start-Sleep -Seconds 40
-
-# Vérifier l'état des conteneurs
-docker-compose ps
-```
 
 ### Étape 2 : Créer les répertoires HDFS
 
-```powershell
-# Créer le dossier pour le streaming
-docker exec practical-activity-5-spark-streaming-namenode-1 hdfs dfs -mkdir -p /data/stream
+<img width="1738" height="166" alt="Screenshot 2025-12-20 193801" src="https://github.com/user-attachments/assets/ceca8d4b-cd11-477f-a64d-bbfac4a7fab1" />
 
-# Créer le dossier staging
-docker exec practical-activity-5-spark-streaming-namenode-1 hdfs dfs -mkdir -p /data/staging
-
-# Donner les permissions
-docker exec practical-activity-5-spark-streaming-namenode-1 hdfs dfs -chmod 777 /data/stream
-
-# Vérifier la création
-docker exec practical-activity-5-spark-streaming-namenode-1 hdfs dfs -ls /data/
-```
 
 ### Étape 3 : Préparer les fichiers CSV
 
-```powershell
-# Copier les fichiers depuis Windows vers le conteneur
-docker cp data/orders1.csv practical-activity-5-spark-streaming-namenode-1:/data/orders1.csv
-docker cp data/orders2.csv practical-activity-5-spark-streaming-namenode-1:/data/orders2.csv
-docker cp data/orders3.csv practical-activity-5-spark-streaming-namenode-1:/data/orders3.csv
+<img width="1766" height="896" alt="Screenshot 2025-12-20 193950" src="https://github.com/user-attachments/assets/a6763695-d07e-4a5b-8d98-3fb2a0d7da17" />
 
-# Copier dans HDFS staging
-docker exec practical-activity-5-spark-streaming-namenode-1 hdfs dfs -put -f /data/orders1.csv /data/staging/
-docker exec practical-activity-5-spark-streaming-namenode-1 hdfs dfs -put -f /data/orders2.csv /data/staging/
-docker exec practical-activity-5-spark-streaming-namenode-1 hdfs dfs -put -f /data/orders3.csv /data/staging/
-
-# Vérifier
-docker exec practical-activity-5-spark-streaming-namenode-1 hdfs dfs -ls /data/staging/
-```
 
 ### Étape 4 : Compiler l'application
-
-```powershell
-# Compiler le projet Maven
-mvn clean package
-
-# Vérifier que le JAR a été créé
-ls target/practical-activity-5-spark-streaming-0.0.1-SNAPSHOT.jar
-```
+<img width="1239" height="307" alt="Screenshot 2025-12-20 163446" src="https://github.com/user-attachments/assets/adb9fc27-cb24-476c-a0e5-e0b6559ca6d1" />
 
 ### Étape 5 : Déployer l'application
+<img width="1776" height="165" alt="Screenshot 2025-12-20 165342" src="https://github.com/user-attachments/assets/40828461-10e6-4916-b876-11471f0463ac" />
 
-```powershell
-# Copier le JAR vers Spark Master
-docker cp target/practical-activity-5-spark-streaming-0.0.1-SNAPSHOT.jar spark-master:/opt/spark/app.jar
-
-# Vérifier la copie
-docker exec spark-master ls -lh /opt/spark/app.jar
-```
 
 ### Étape 6 : Lancer l'application Spark Streaming
 
-```powershell
-docker exec -it spark-master /opt/spark/bin/spark-submit `
-  --class org.bigdata.practicalactivity5sparkstreaming.Main `
-  --master spark://spark-master:7077 `
-  --deploy-mode client `
-  --conf spark.hadoop.fs.defaultFS=hdfs://namenode:8020 `
-  --conf spark.executor.memory=1g `
-  --conf spark.executor.cores=1 `
-  --conf spark.driver.memory=1g `
-  /opt/spark/app.jar
-```
+<img width="1910" height="950" alt="Screenshot 2025-12-20 194320" src="https://github.com/user-attachments/assets/270c0181-fa2e-43d1-a669-168e53a063fb" />
 
 L'application est maintenant en attente de nouveaux fichiers dans /data/stream/
 
@@ -249,59 +195,31 @@ L'application est maintenant en attente de nouveaux fichiers dans /data/stream/
 
 Ouvrir un nouveau terminal PowerShell et exécuter :
 
-**Batch 1 :**
-```powershell
-Write-Host "=== Envoi du Batch 1: orders1.csv ===" -ForegroundColor Green
-docker exec practical-activity-5-spark-streaming-namenode-1 hdfs dfs -cp /data/staging/orders1.csv /data/stream/orders1.csv
-Start-Sleep -Seconds 20
-```
-
-**Batch 2 :**
-```powershell
-Write-Host "=== Envoi du Batch 2: orders2.csv ===" -ForegroundColor Green
-docker exec practical-activity-5-spark-streaming-namenode-1 hdfs dfs -cp /data/staging/orders2.csv /data/stream/orders2.csv
-Start-Sleep -Seconds 20
-```
-
-**Batch 3 :**
-```powershell
-Write-Host "=== Envoi du Batch 3: orders3.csv ===" -ForegroundColor Green
-docker exec practical-activity-5-spark-streaming-namenode-1 hdfs dfs -cp /data/staging/orders3.csv /data/stream/orders3.csv
-```
-
 ### Observer les résultats
 
 Les résultats s'affichent automatiquement dans le terminal où spark-submit s'exécute :
 
-```
--------------------------------------------
-Batch: 1
--------------------------------------------
-+--------+-------------+-----------+
-|product |total_revenue|order_count|
-+--------+-------------+-----------+
-|Laptop  |1500.0       |2          |
-|Phone   |800.0        |1          |
-+--------+-------------+-----------+
+**Batch  0 :**
+<img width="1783" height="707" alt="Screenshot 2025-12-20 171929" src="https://github.com/user-attachments/assets/a6771c8d-5dc5-480c-86d9-661f880e7067" />
 
--------------------------------------------
-Batch: 2
--------------------------------------------
-+--------+-------------+-----------+
-|product |total_revenue|order_count|
-+--------+-------------+-----------+
-|Laptop  |3500.0       |4          |
-|Phone   |2100.0       |3          |
-|Tablet  |600.0        |2          |
-+--------+-------------+-----------+
-```
+<img width="1761" height="1015" alt="Screenshot 2025-12-20 171838" src="https://github.com/user-attachments/assets/8640745a-4d86-42ce-b202-6f5da14cf411" />
 
----
+
+**Batch 1 :**
+<img width="1771" height="917" alt="Screenshot 2025-12-20 171945" src="https://github.com/user-attachments/assets/6ee2ba32-bb28-4aad-9387-40df230bcba0" />
+
+**Batch 2 :**
+
+<img width="1783" height="1031" alt="Screenshot 2025-12-20 172049" src="https://github.com/user-attachments/assets/7fa91513-8a18-42d7-8a9b-101c0dd617fd" />
+
 
 ## Interfaces web
 
 ### Spark Master UI
 **URL :** http://localhost:8080
+
+<img width="1899" height="976" alt="Screenshot 2025-12-20 172229" src="https://github.com/user-attachments/assets/f7b99b70-0b82-45b2-96f1-c16f83190050" />
+
 
 **Fonctionnalités :**
 - Vue d'ensemble du cluster Spark
@@ -309,18 +227,16 @@ Batch: 2
 - Applications en cours d'exécution
 - Historique des applications
 
-### Spark Application UI
-**URL :** http://localhost:4040
-
-**Fonctionnalités :**
-- Onglet "Jobs" : jobs exécutés et leur statut
-- Onglet "Stages" : détails des stages et DAG visualization
-- Onglet "Streaming" : métriques temps réel (Input Rate, Processing Time, Scheduling Delay)
-- Onglet "SQL" : requêtes exécutées avec plans d'exécution
-- Onglet "Executors" : statistiques des executors
-
 ### HDFS NameNode UI
+
 **URL :** http://localhost:9870
+
+<img width="1898" height="922" alt="Screenshot 2025-12-20 172726" src="https://github.com/user-attachments/assets/d70117b2-8e82-4934-b174-823b970f02d4" />
+
+<img width="1886" height="992" alt="Screenshot 2025-12-20 172750" src="https://github.com/user-attachments/assets/a4a05f1d-8493-4bd9-95c0-23ccee489177" />
+
+<img width="1903" height="998" alt="Screenshot 2025-12-20 172816" src="https://github.com/user-attachments/assets/f6d2aca0-81de-49f9-adea-2e1e7cc28b8d" />
+
 
 **Fonctionnalités :**
 - Overview du cluster HDFS
@@ -329,7 +245,9 @@ Batch: 2
 - Espace de stockage utilisé
 
 ### YARN ResourceManager UI
-**URL :** http://localhost:8088
+**URL :**http://localhost:8088
+
+<img width="1919" height="1020" alt="Screenshot 2025-12-20 172841" src="https://github.com/user-attachments/assets/794e10f4-179e-428b-9445-022182859676" />
 
 **Fonctionnalités :**
 - Cluster Metrics : métriques globales du cluster
@@ -339,67 +257,9 @@ Batch: 2
 
 ---
 
-## Résultats attendus
-
-### Comportement de l'application
-
-1. **Batch 0** : Aucune donnée (table vide)
-2. **Batch 1** : Agrégation des données du fichier orders1.csv
-3. **Batch 2** : Agrégation cumulative (orders1 + orders2)
-4. **Batch 3** : Agrégation cumulative (orders1 + orders2 + orders3)
-
 ### Mode Update
 
 Le mode "Update" affiche uniquement les lignes modifiées à chaque batch, ce qui est efficace pour les agrégations stateful.
-
-### Métriques de performance
-
-Dans l'interface Streaming (http://localhost:4040), surveiller :
-- **Input Rate** : nombre d'enregistrements par seconde
-- **Processing Time** : temps de traitement d'un batch
-- **Scheduling Delay** : délai avant le début du traitement
-
-Valeurs normales :
-- Processing Time : 1-5 secondes
-- Scheduling Delay : < 1 seconde
-
----
-
-## Arrêt et nettoyage
-
-### Arrêter l'application Spark
-
-Dans le terminal où spark-submit s'exécute :
-```
-Ctrl + C
-```
-
-Ou depuis un autre terminal :
-```powershell
-docker exec spark-master pkill -f spark-submit
-```
-
-### Nettoyer le stream pour un nouveau test
-
-```powershell
-# Supprimer les fichiers du stream
-docker exec practical-activity-5-spark-streaming-namenode-1 hdfs dfs -rm /data/stream/*
-
-# Vérifier
-docker exec practical-activity-5-spark-streaming-namenode-1 hdfs dfs -ls /data/stream/
-```
-
-### Arrêter tous les services
-
-```powershell
-# Arrêter les conteneurs
-docker-compose down
-
-# Arrêter et supprimer les volumes (données HDFS perdues)
-docker-compose down -v
-```
-
----
 
 ## Dépannage
 
@@ -552,7 +412,7 @@ docker exec practical-activity-5-spark-streaming-namenode-1 hdfs dfsadmin -repor
 
 ## Auteur
 
-Projet réalisé dans le cadre du cours de Big Data - Spark Streaming avec HDFS
+Activité pratique réalisée dans le cadre du cours de Big Data - Spark Streaming avec HDFS
 
 ## Licence
 
